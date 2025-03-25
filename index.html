@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LOOOOL QUE MAL"</title>
+
+    <audio id="backgroundMusic" loop>
+        <source src="cancion.mp3" type="audio/mpeg">
+      </audio>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            margin: 0;
+            padding: 10px;
+            min-height: 100vh;
+            color: #333;
+            text-align: center;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #e91e63;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .game-section {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+        
+        .game-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            height: 15px;
+            background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 50%, #a18cd1 100%);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .revealed-phrase {
+            font-size: 22px;
+            letter-spacing: 2px;
+            margin: 15px 0;
+            min-height: 40px;
+            font-weight: bold;
+            color: #e91e63;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #e91e63, #ff5722);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 8px 4px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        /* Estilos para el juego de memoria */
+        .memory-game {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 15px auto;
+            max-width: 280px;
+        }
+        
+        .memory-card {
+            height: 50px;
+            background: linear-gradient(45deg, #a18cd1, #fbc2eb);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: all 0.5s;
+            position: relative;
+        }
+        
+        .memory-card .front,
+        .memory-card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+        }
+        
+        .memory-card .front {
+            background: linear-gradient(45deg, #a18cd1, #fbc2eb);
+            z-index: 2;
+        }
+        
+        .memory-card .back {
+            background: white;
+            transform: rotateY(180deg);
+        }
+        
+        .memory-card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        /* Estilos para el juego de arrastrar */
+        .drag-game {
+            display: flex;
+            flex-direction: column;
+            margin: 15px 0;
+        }
+        
+        .drag-container {
+            width: 100%;
+            min-height: 80px;
+            border: 2px dashed #e91e63;
+            border-radius: 10px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .drag-item {
+            background-color: #f8bbd0;
+            padding: 6px 10px;
+            margin: 4px;
+            border-radius: 20px;
+            cursor: grab;
+            display: inline-block;
+            font-size: 14px;
+        }
+        
+        .drag-item:active {
+            cursor: grabbing;
+        }
+        .drag-item {
+    /* Asegurar que los elementos sean visibles */
+    opacity: 1 !important;
+    position: static !important;
+    display: inline-block !important;
+    /* Resto de estilos... */
+}
+
+.drag-item:active {
+    opacity: 0.7;
+    transform: scale(1.1);
+}
+        /* Estilos para el juego de preguntas */
+        .question-option {
+            display: block;
+            width: 90%;
+            margin: 8px auto;
+            padding: 10px;
+            background-color: #f8bbd0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .question-option:hover {
+            background-color: #f48fb1;
+            transform: translateX(5px);
+        }
+        
+        .attempts-counter {
+            font-weight: bold;
+            margin: 10px 0;
+            color: #e91e63;
+            font-size: 14px;
+        }
+        
+        /* Mensaje final */
+        .final-message {
+            font-size: 24px;
+            color: #e91e63;
+            margin: 20px 0;
+            display: none;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .hearts {
+            font-size: 30px;
+            color: #e91e63;
+            margin: 15px 0;
+        }
+        
+        /* Estilos para la imagen final */
+        .final-image {
+            max-width: 150px;
+            margin: 15px auto;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            display: block;
+        }
+        
+        /* Estilos para el juego de la serpiente */
+        #snakeGameContainer {
+            display: none;
+            margin: 15px auto;
+            text-align: center;
+            width: 100%;
+        }
+        
+        #snakeCanvas {
+            border: 2px solid #e91e63;
+            border-radius: 10px;
+            background-color: #fff;
+            max-width: 100%;
+            touch-action: none;
+        }
+        
+        #snakeMessage {
+            font-size: 18px;
+            color: #e91e63;
+            margin: 8px 0;
+            min-height: 24px;
+            font-weight: bold;
+        }
+        
+        .snake-controls {
+            margin: 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .snake-controls button {
+            background: linear-gradient(45deg, #a18cd1, #fbc2eb);
+            margin: 5px;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        
+        .revealed-message {
+            font-size: 16px;
+            color: #e91e63;
+            margin: 10px 0;
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            display: none;
+        }
+        
+       
+        /* Estilos para los controles de la serpiente */
+.touch-controls {
+    display: grid;
+    grid-template-areas:
+        ". up ."
+        "left . right"
+        ". down .";
+    gap: 10px;
+    margin: 20px auto;
+    max-width: 300px;
+    touch-action: none;
+    justify-content: center;
+}
+
+.control-btn {
+    background: rgba(233, 30, 99, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+    transition: transform 0.1s;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.control-btn:active {
+    background: rgba(233, 30, 99, 1);
+    transform: scale(0.95);
+}
+
+#upBtn { grid-area: up; }
+#leftBtn { grid-area: left; }
+#rightBtn { grid-area: right; }
+#downBtn { grid-area: down; }
+
+.snake-controls {
+    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.snake-restart-btn {
+    background: linear-gradient(45deg, #a18cd1, #fbc2eb);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 10px auto;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    display: none;
+}
+
+.snake-restart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
+
+#snakeCanvas {
+    border: 2px solid #e91e63;
+    border-radius: 10px;
+    background-color: #fff;
+    max-width: 100%;
+    touch-action: none;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Estilos para la modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  background-color: #f8bbd0;
+  margin: 15% auto;
+  padding: 20px;
+  border: 3px solid #e91e63;
+  border-radius: 15px;
+  width: 80%;
+  max-width: 400px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #e91e63;
+  position: relative;
+  animation: bounceIn 0.5s;
+}
+
+.close-modal {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  color: #ff5722;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+@keyframes bounceIn {
+  0% {transform: scale(0.8); opacity: 0;}
+  50% {transform: scale(1.05);}
+  100% {transform: scale(1); opacity: 1;}
+}
+    </style>
+</head>
+<body>
+    <audio id="audio" autoplay loop hidden>
+        <source src="cancion.mp3" type="audio/mp3">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+    
+    <div class="container">
+        <h1>No esta tan complicado</h1>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="revealed-phrase" id="revealedPhrase">
+            <span id="word1">_ _</span> <span id="word2">_ _ _ _ _ _</span>
+        </div>
+        
+        <!-- Mini Juego 1: Memoria para "me" -->
+        <div class="game-section active" id="game1">
+            <h2>Juego 1: Encuentra las letras</h2>
+            <p>Si 
+                𝐸
+                +
+                𝑀
+                =
+                𝑋
+                E+M=X y 
+                𝑋
+                −
+                𝑀
+                =
+                𝐸
+                X−M=E, ¿cuál es el valor de la palabra oculta? (2 letras)
+            
+           </p>
+           <p>
+            Es broma solo son dos letras las que deben tener par  🤓
+           </p>
+            <div class="memory-game" id="memoryGame"></div>
+            <button id="nextBtn1" disabled>Siguiente Juego</button>
+        </div>
+        
+        <!-- Mini Juego 2: Arrastrar letras para "gustas" -->
+        <div class="game-section" id="game2">
+            <h2>Juego 2: Ordena las letras</h2>
+            <p>Arrastra las letras de la izquierda a la derecha para formar la segunda palabra (6 letras)</p>
+            <div class="drag-game">
+                <div class="drag-container" id="dragSource">
+                    <div class="drag-item" draggable="true">g</div>
+                    <div class="drag-item" draggable="true">u</div>
+                    <div class="drag-item" draggable="true">s</div>
+                    <div class="drag-item" draggable="true">t</div>
+                    <div class="drag-item" draggable="true">a</div>
+                    <div class="drag-item" draggable="true">s</div>
+                </div>
+                <div class="drag-container" id="dragTarget"></div>
+            </div>
+            <button id="checkOrderBtn">Comprobar</button>
+            <button id="nextBtn2" disabled>Siguiente Juego</button>
+        </div>
+        
+        <!-- Mini Juego 3: Pregunta romántica -->
+        <div class="game-section" id="game3">
+            <h2>Juego 3: Adivina el sentimiento</h2>
+            <p>¿Cómo se llama este sentimiento cuando alguien te atrae mucho?</p>
+            <div class="attempts-counter" id="attemptsCounter">Intentos restantes: 3</div>
+            <div class="question-option" onclick="checkAnswer(this, 'amistad')">Amistad</div>
+            <div class="question-option" onclick="checkAnswer(this, 'amor')">Amor</div>
+            <div class="question-option" onclick="checkAnswer(this, 'gustar')">Gustar</div>
+            <div class="question-option" onclick="checkAnswer(this, 'odio')">Odio</div>
+            <button id="nextBtn3" disabled>Ver Mensaje Final</button>
+        </div>
+
+        <div class="gif-container">
+            <img src="gif.gif" alt="Corazones animados" class="header-gif">
+          </div>
+        
+        <!-- Mensaje final -->
+        <div class="final-message" id="finalMessage">
+            <div class="hearts">❤️ ❤️ ❤️</div>
+            <div id="completePhrase">ME GUSTAS</div>
+            <div class="hearts">❤️ ❤️ ❤️</div>
+            <p id="questionText">¿Crees que es broma?</p>
+            <img src="p.webp" alt="Mensaje especial" class="final-image" id="finalImage">
+            <button id="">Me tarde mucho para decir algo simple? SI 🤓</button>
+            <button id="">Es algo raro? claro que si</button>
+            <button id="">Pero no le quita lo original 🗣️</button>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+  const audio = document.getElementById('backgroundMusic');
+  audio.volume = 0.3; // Volumen bajo para no molestar
+  
+  // Intenta reproducir automáticamente (puede fallar en móviles)
+  const playPromise = audio.play();
+  
+  if (playPromise !== undefined) {
+    playPromise.catch(error => {
+      // Si falla el autoplay, muestra un botón overlay grande
+      const musicOverlay = document.createElement('div');
+      musicOverlay.style.position = 'fixed';
+      musicOverlay.style.top = '0';
+      musicOverlay.style.left = '0';
+      musicOverlay.style.width = '100%';
+      musicOverlay.style.height = '100%';
+      musicOverlay.style.backgroundColor = 'rgba(0,0,0,0.8)';
+      musicOverlay.style.display = 'flex';
+      musicOverlay.style.flexDirection = 'column';
+      musicOverlay.style.justifyContent = 'center';
+      musicOverlay.style.alignItems = 'center';
+      musicOverlay.style.zIndex = '10000';
+      musicOverlay.style.color = 'white';
+      
+      musicOverlay.innerHTML = `
+        <h2>¡Hola Cami(Otra vez)!</h2>
+        <p>Para vivir la experiencia completa, activa la música xd </p>
+        <button style="
+          background: #e91e63;
+          color: white;
+          border: none;
+          padding: 15px 30px;
+          font-size: 18px;
+          border-radius: 50px;
+          margin-top: 20px;
+          cursor: pointer;
+        ">🧐🍷</button>
+      `;
+      
+      document.body.appendChild(musicOverlay);
+      
+      // Al hacer clic en el botón, intenta reproducir nuevamente
+      musicOverlay.querySelector('button').addEventListener('click', function() {
+        audio.play()
+          .then(() => musicOverlay.remove())
+          .catch(e => console.error("Error al reproducir:", e));
+      });
+    });
+  }
+});
+
+        // Variables del juego
+        let currentGame = 1;
+        const totalGames = 3;
+        let attemptsLeft = 3;
+        
+        // Inicializar el juego
+        document.addEventListener('DOMContentLoaded', function() {
+            initMemoryGame();
+            initDragGame();
+            updateProgress();
+            
+            // Configurar el botón para jugar
+            document.getElementById('playGameBtn').addEventListener('click', function() {
+                document.getElementById('finalMessage').style.display = 'none';
+                document.getElementById('snakeGameContainer').style.display = 'block';
+                initSnakeGame();
+            });
+            
+            // Configurar el botón de volver
+            document.getElementById('resetSnakeBtn').addEventListener('click', function() {
+                document.getElementById('snakeGameContainer').style.display = 'none';
+                document.getElementById('finalMessage').style.display = 'block';
+            });
+        });
+        
+        // Actualizar barra de progreso
+        function updateProgress() {
+            const progress = ((currentGame - 1) / totalGames) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+        
+        // Ir al siguiente juego
+        function nextGame() {
+            document.getElementById(`game${currentGame}`).classList.remove('active');
+            currentGame++;
+            
+            if (currentGame <= totalGames) {
+                document.getElementById(`game${currentGame}`).classList.add('active');
+                updateProgress();
+            } else {
+                // Mostrar mensaje final
+                revealFullPhrase();
+            }
+        }
+        
+        // Revelar la frase completa
+        function revealFullPhrase() {
+    
+            document.getElementById('finalMessage').style.display = 'block';
+        }
+        
+        // Juego 1: Memoria para "me"
+        function initMemoryGame() {
+            const letters = ['m', 'e', 'a', 'b', 'c', 'd', 'f', 'g','m', 'e','h','j','j','h','g','h','r','z','a','g','i']; 
+            const memoryGame = document.getElementById('memoryGame');
+            
+            // Barajar las letras
+            const shuffledLetters = shuffleArray([...letters]);
+            
+            // Crear las cartas
+            shuffledLetters.forEach((letter, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.index = index;
+                card.dataset.letter = letter;
+                
+                card.innerHTML = `
+                    <div class="front">?</div>
+                    <div class="back">${letter}</div>
+                `;
+                
+                card.addEventListener('click', flipCard);
+                memoryGame.appendChild(card);
+            });
+            
+            let hasFlippedCard = false;
+            let lockBoard = false;
+            let firstCard, secondCard;
+            let matchesFound = 0;
+            const neededMatches = 2; // m y e
+            
+            function flipCard() {
+                if (lockBoard) return;
+                if (this === firstCard) return;
+                if (this.classList.contains('flipped')) return;
+                
+                this.classList.add('flipped');
+                
+                if (!hasFlippedCard) {
+                    hasFlippedCard = true;
+                    firstCard = this;
+                    return;
+                }
+                
+                secondCard = this;
+                lockBoard = true;
+                
+                checkForMatch();
+            }
+            
+            function checkForMatch() {
+                const isMatch = firstCard.dataset.letter === secondCard.dataset.letter;
+                
+                if (isMatch) {
+                    disableCards();
+                    matchesFound++;
+                    
+                    // Cuando se encuentran ambas letras (m y e)
+                    if (matchesFound === neededMatches) {
+                        document.getElementById('word1').textContent = '';
+                        document.getElementById('nextBtn1').disabled = false;
+                    }
+                } else {
+                    unflipCards();
+                }
+            }
+            
+            function disableCards() {
+                firstCard.removeEventListener('click', flipCard);
+                secondCard.removeEventListener('click', flipCard);
+                resetBoard();
+            }
+            
+            function unflipCards() {
+                setTimeout(() => {
+                    firstCard.classList.remove('flipped');
+                    secondCard.classList.remove('flipped');
+                    resetBoard();
+                }, 1000);
+            }
+            
+            function resetBoard() {
+                [hasFlippedCard, lockBoard] = [false, false];
+                [firstCard, secondCard] = [null, null];
+            }
+            
+            document.getElementById('nextBtn1').addEventListener('click', nextGame);
+        }
+        
+        // Juego 2: Arrastrar letras para "gustas"
+        function initDragGame() {
+            const dragSource = document.getElementById('dragSource');
+            const dragTarget = document.getElementById('dragTarget');
+            
+            // Letras correctas + letras adicionales de distracción
+            const correctLetters = ['g', 'u', 's', 't', 'a', 's'];
+            const extraLetters = ['l', 'o', 'v', 'e', 'm', 'e', 'n', 't', 'o','u','s','a','a','s','t','y','r','t','s','s'];
+            const allLetters = [...correctLetters, ...extraLetters];
+            
+            // Limpiar contenedores
+            dragSource.innerHTML = '';
+            dragTarget.innerHTML = '';
+            
+            // Crear elementos arrastrables
+            const shuffledLetters = shuffleArray([...allLetters]);
+            shuffledLetters.forEach(letter => {
+                const dragItem = document.createElement('div');
+                dragItem.className = 'drag-item';
+                dragItem.textContent = letter;
+                dragItem.draggable = true;
+                dragItem.dataset.letter = letter;
+                dragSource.appendChild(dragItem);
+            });
+            
+            // Event listeners para drag and drop
+            document.querySelectorAll('.drag-item').forEach(item => {
+                item.addEventListener('dragstart', dragStart);
+                item.addEventListener('touchstart', touchStart, {passive: false});
+            });
+            
+            dragTarget.addEventListener('dragover', dragOver);
+            dragTarget.addEventListener('drop', drop);
+            dragTarget.addEventListener('touchmove', touchMove, {passive: false});
+            dragTarget.addEventListener('touchend', touchEnd);
+            
+            dragSource.addEventListener('dragover', dragOver);
+            dragSource.addEventListener('drop', dropToSource);
+            dragSource.addEventListener('touchmove', touchMove, {passive: false});
+            dragSource.addEventListener('touchend', touchEnd);
+            
+            let draggedItem = null;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            
+            function dragStart(e) {
+                draggedItem = this;
+                e.dataTransfer.setData('text/plain', this.textContent);
+                setTimeout(() => this.style.display = 'none', 0);
+            }
+            
+            function touchStart(e) {
+                e.preventDefault();
+                draggedItem = this;
+                const touch = e.touches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+                this.style.opacity = '0.5';
+            }
+            
+            function dragOver(e) {
+                e.preventDefault();
+            }
+            
+            function touchMove(e) {
+                e.preventDefault();
+                if (!draggedItem) return;
+                
+                const touch = e.touches[0];
+                const x = touch.clientX;
+                const y = touch.clientY;
+                
+                // Mover el elemento arrastrado
+                draggedItem.style.position = 'absolute';
+                draggedItem.style.left = (x - draggedItem.offsetWidth / 2) + 'px';
+                draggedItem.style.top = (y - draggedItem.offsetHeight / 2) + 'px';
+            }
+            
+            function drop(e) {
+    e.preventDefault();
+    if (draggedItem) {
+        // Asegurarse de que el elemento sea visible
+        draggedItem.style.display = 'inline-block';
+        draggedItem.style.opacity = '1';
+        draggedItem.style.position = 'static';
+        
+        // Mover el elemento al contenedor de destino
+        dragTarget.appendChild(draggedItem);
+        
+        // Restablecer estilos
+        draggedItem.style.backgroundColor = '#f48fb1';
+        draggedItem = null;
+    }
+}
+
+function touchEnd(e) {
+    if (!draggedItem) return;
+    
+    const touch = e.changedTouches[0];
+    const endX = touch.clientX;
+    const endY = touch.clientY;
+    
+    // Determinar en qué contenedor soltar
+    const targetElement = document.elementFromPoint(endX, endY);
+    const targetContainer = targetElement ? targetElement.closest('.drag-container') : null;
+    
+    if (targetContainer) {
+        // Asegurarse de que el elemento sea visible
+        draggedItem.style.display = 'inline-block';
+        draggedItem.style.opacity = '1';
+        draggedItem.style.position = 'static';
+        
+        if (targetContainer === dragTarget) {
+            dragTarget.appendChild(draggedItem);
+            draggedItem.style.backgroundColor = '#f48fb1';
+        } else if (targetContainer === dragSource) {
+            dragSource.appendChild(draggedItem);
+            draggedItem.style.backgroundColor = '#f8bbd0';
+        }
+    }
+    
+    draggedItem = null;
+}
+            
+            function dropToSource(e) {
+                e.preventDefault();
+                if (draggedItem) {
+                    dragSource.appendChild(draggedItem);
+                    draggedItem.style.display = 'inline-block';
+                    draggedItem.style.backgroundColor = '#f8bbd0';
+                    draggedItem.style.position = '';
+                    draggedItem.style.left = '';
+                    draggedItem.style.top = '';
+                    draggedItem.style.opacity = '';
+                    draggedItem = null;
+                }
+            }
+            
+            // Función para determinar posición al soltar
+            function getDragAfterElement(container, y) {
+                const draggableElements = [...container.querySelectorAll('.drag-item:not(.dragging)')];
+                
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
+            
+            // Comprobar el orden
+            document.getElementById('checkOrderBtn').addEventListener('click', function() {
+                const lettersInTarget = Array.from(dragTarget.children)
+                    .filter(item => correctLetters.includes(item.dataset.letter))
+                    .map(el => el.textContent)
+                    .join('');
+                
+                if (lettersInTarget === 'gustas') {
+                    // Correcto
+                    document.getElementById('word2').textContent = '';
+                    document.getElementById('nextBtn2').disabled = false;
+                    this.disabled = true;
+                    
+                    // Marcar letras correctas
+                    Array.from(dragTarget.children).forEach(item => {
+                        if (correctLetters.includes(item.dataset.letter)) {
+                            item.style.backgroundColor = '#81c784';
+                        }
+                    });
+                    
+                    // Deshabilitar arrastre
+                    document.querySelectorAll('.drag-item').forEach(item => {
+                        item.draggable = false;
+                    });
+                } else {
+                    // Incorrecto - mostrar mensaje pero permitir seguir intentando
+                    alert('¡Sigue intentándolo!');
+                    
+                    // Agregar botón de reinicio temporal
+                    const resetBtn = document.createElement('button');
+                    resetBtn.textContent = 'Reiniciar Letras';
+                    resetBtn.style.margin = '10px';
+                    resetBtn.onclick = function() {
+                        resetLetters();
+                        resetBtn.remove();
+                    };
+                    
+                    // Eliminar botones de reinicio previos si existen
+                    const existingReset = this.nextElementSibling;
+                    if (existingReset && existingReset.textContent === 'Reiniciar Letras') {
+                        existingReset.remove();
+                    }
+                    
+                    this.insertAdjacentElement('afterend', resetBtn);
+                }
+            });
+            
+            // Función para reiniciar las letras
+            function resetLetters() {
+                // Devolver todas las letras al origen
+                Array.from(dragTarget.children).forEach(item => {
+                    dragSource.appendChild(item);
+                    item.style.backgroundColor = '#f8bbd0';
+                    item.draggable = true;
+                });
+                
+                // Barajar de nuevo
+                const items = Array.from(dragSource.children);
+                dragSource.innerHTML = '';
+                shuffleArray(items).forEach(item => dragSource.appendChild(item));
+            }
+            
+            document.getElementById('nextBtn2').addEventListener('click', nextGame);
+        }
+        
+        // Juego 3: Pregunta romántica
+        function checkAnswer(element, answer) {
+            const options = document.querySelectorAll('.question-option');
+            
+            // Si ya se acertó o se agotaron los intentos, no hacer nada
+            if (document.getElementById('nextBtn3').disabled === false || attemptsLeft <= 0) {
+                return;
+            }
+            
+            // Deshabilitar todas las opciones temporalmente para evitar múltiples clicks
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            if (answer === 'gustar') {
+                // Respuesta correcta
+                element.style.backgroundColor = '#81c784';
+                document.getElementById('nextBtn3').disabled = false;
+                
+                // Mostrar todas las opciones como incorrectas excepto la correcta
+                options.forEach(opt => {
+                    if (opt.textContent.toLowerCase() !== 'gustar') {
+                        opt.style.backgroundColor = '#e57373';
+                    }
+                });
+            } else {
+                // Respuesta incorrecta
+                element.style.backgroundColor = '#e57373';
+                attemptsLeft--;
+                document.getElementById('attemptsCounter').textContent = `Intentos restantes: ${attemptsLeft}`;
+                
+                // Si se agotan los intentos, mostrar la respuesta correcta
+                if (attemptsLeft <= 0) {
+                    options.forEach(opt => {
+                        if (opt.textContent.toLowerCase() === 'gustar') {
+                            opt.style.backgroundColor = '#81c784';
+                        }
+                    });
+                    document.getElementById('nextBtn3').disabled = false;
+                } else {
+                    // Volver a habilitar las opciones para otro intento
+                    setTimeout(() => {
+                        options.forEach(opt => {
+                            if (opt.textContent.toLowerCase() !== answer) {
+                                opt.style.pointerEvents = 'auto';
+                                opt.style.backgroundColor = '#f8bbd0';
+                            }
+                        });
+                    }, 1000);
+                }
+            }
+        }
+        
+        document.getElementById('nextBtn3').addEventListener('click', nextGame);
+        
+        // Función para barajar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Modificar la función nextGame()
+function nextGame() {
+    document.getElementById(`game${currentGame}`).classList.remove('active');
+    currentGame++;
+    
+    if (currentGame <= totalGames) {
+        document.getElementById(`game${currentGame}`).classList.add('active');
+        updateProgress();
+        
+        // Mostrar "ME _ _ _ _ _ _" después del primer juego
+        if (currentGame === 2) {
+            document.getElementById('word1').textContent = 'ME';
+            document.getElementById('word2').textContent = '_ _ _ _ _ _';
+        }
+    } else {
+        // Mostrar mensaje final
+        revealFullPhrase();
+    }
+}
+
+// Modificar la función revealFullPhrase() para mostrar completo
+function revealFullPhrase() {
+    document.getElementById('word1').textContent = 'ME';
+    document.getElementById('word2').textContent = 'GUSTAS';
+    document.getElementById('finalMessage').style.display = 'block';
+}
+    
+    </script>
+
+<div id="incorrectModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <p>ESA NO ES CAMI, INTENTA OTRA COSA</p>
+    </div>
+  </div>
+
+</body>
+</html>
